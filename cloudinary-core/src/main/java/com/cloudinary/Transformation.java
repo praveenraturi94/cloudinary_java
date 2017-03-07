@@ -622,7 +622,7 @@ public class Transformation {
 
         for (Map.Entry<String, String> param : params.entrySet()) {
             if (StringUtils.isNotBlank(param.getValue())) {
-                components.add(param.getKey() + "_" + Expression.parse(param.getValue()));
+                components.add(param.getKey() + "_" + param.getValue());
             }
         }
         String raw_transformation = (String) options.get("raw_transformation");
@@ -711,10 +711,6 @@ public class Transformation {
 
     public static void setDefaultDPR(Object dpr) {
         defaultDPR = dpr;
-    }
-
-    public static Expression variables(String name) {
-        return new Expression(name);
     }
 
     private static String[] splitRange(Object range) {
