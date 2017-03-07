@@ -21,7 +21,7 @@ public class Condition extends BaseExpression<Condition> {
     public Condition(String conditionStr) {
         this();
         if (conditionStr != null) {
-            expressions.add(parse(conditionStr));
+            expressions.add(normalize(conditionStr));
         }
     }
 
@@ -30,7 +30,7 @@ public class Condition extends BaseExpression<Condition> {
         return new Condition();
     }
 
-    protected Condition predicate(String name, String operator, String value) {
+    protected Condition predicate(String name, String operator, Object value) {
         if (OPERATORS.containsKey(operator)) {
             operator = (String) OPERATORS.get(operator);
         }
@@ -48,18 +48,15 @@ public class Condition extends BaseExpression<Condition> {
     }
 
     public Condition width(String operator, Object value) {
-        expressions.add("w_" + operator + "_" + value);
-        return this;
+        return predicate("w", operator, value);
     }
 
     public Condition height(String operator, Object value) {
-        expressions.add("h_" + operator + "_" + value);
-        return this;
+        return predicate("h", operator, value);
     }
 
     public Condition aspectRatio(String operator, Object value) {
-        expressions.add("ar_" + operator + "_" + value);
-        return this;
+        return predicate("ar", operator, value);
     }
 
     /**
@@ -71,8 +68,7 @@ public class Condition extends BaseExpression<Condition> {
     }
 
     public Condition faceCount(String operator, Object value) {
-        expressions.add("fc_" + operator + "_" + value);
-        return this;
+        return predicate("fc", operator, value);
     }
 
     /**
@@ -84,8 +80,7 @@ public class Condition extends BaseExpression<Condition> {
     }
 
     public Condition pageCount(String operator, Object value) {
-        expressions.add("pc_" + operator + "_" + value);
-        return this;
+        return predicate("pc", operator, value);
     }
 
 }

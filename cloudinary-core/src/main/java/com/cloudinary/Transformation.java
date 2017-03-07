@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import com.cloudinary.transformation.AbstractLayer;
 import com.cloudinary.transformation.Condition;
-import com.cloudinary.transformation.BaseExpression;
 import com.cloudinary.transformation.Expression;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -552,27 +551,27 @@ public class Transformation {
 
         SortedMap<String, String> params = new TreeMap<String, String>();
 
-        params.put("a", Expression.parse(angle));
-        params.put("ar", Expression.parse( options.get("aspect_ratio")));
+        params.put("a", Expression.normalize(angle));
+        params.put("ar", Expression.normalize( options.get("aspect_ratio")));
         params.put("b", background);
         params.put("c", crop);
         params.put("co", color);
-        params.put("dpr", Expression.parse(dpr));
+        params.put("dpr", Expression.normalize(dpr));
         params.put("du", duration);
         params.put("eo", endOffset);
         params.put("fl", flags);
-        params.put("h", Expression.parse(height));
-        params.put("o", Expression.parse( options.get("opacity")));
-        params.put("q", Expression.parse( options.get("quality")));
-        params.put("q", Expression.parse( options.get("quality")));
-        params.put("r", Expression.parse( options.get("radius")));
+        params.put("h", Expression.normalize(height));
+        params.put("o", Expression.normalize( options.get("opacity")));
+        params.put("q", Expression.normalize( options.get("quality")));
+        params.put("q", Expression.normalize( options.get("quality")));
+        params.put("r", Expression.normalize( options.get("radius")));
         params.put("so", startOffset);
         params.put("t", namedTransformation);
         params.put("vc", videoCodec);
-        params.put("w", Expression.parse(width));
-        params.put("x", Expression.parse( options.get("x")));
-        params.put("y", Expression.parse( options.get("y")));
-        params.put("z", Expression.parse( options.get("zoom")));
+        params.put("w", Expression.normalize(width));
+        params.put("x", Expression.normalize( options.get("x")));
+        params.put("y", Expression.normalize( options.get("y")));
+        params.put("z", Expression.normalize( options.get("zoom")));
 
         String[] simple_params = new String[]{
                 "ac", "audio_codec",
@@ -600,7 +599,7 @@ public class Transformation {
 
         String ifValue = (String) options.get("if");
         if(ifValue != null){
-            components.add(0, "if_" + Expression.parse(ifValue));
+            components.add(0, "if_" + Expression.normalize(ifValue));
         }
 
         List<String> varParams = new ArrayList<String>();
@@ -631,7 +630,7 @@ public class Transformation {
         }
         if (!components.isEmpty()) {
             final String joined = StringUtils.join(components, ",");
-            transformations.add(Expression.parse(joined));
+            transformations.add(Expression.normalize(joined));
         }
 
         if (isResponsive) {

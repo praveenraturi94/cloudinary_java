@@ -4,9 +4,7 @@ import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,7 +13,7 @@ import java.util.regex.Pattern;
  * @param <T> Children must define themselves as T
  */
 public abstract class BaseExpression<T extends BaseExpression> {
-    public static final Map OPERATORS = ObjectUtils.asMap(
+    public static final Map<String,String> OPERATORS = ObjectUtils.asMap(
             "=", "eq",
             "!=", "ne",
             "<", "lt",
@@ -27,9 +25,9 @@ public abstract class BaseExpression<T extends BaseExpression> {
             "*", "mul",
             "/", "div",
             "+", "add",
-            "-", "min"
+            "-", "sub"
     );
-    public static final Map PREDEFINED = ObjectUtils.asMap(
+    public static final Map<String,String> PREDEFINED_VARS = ObjectUtils.asMap(
             "width", "w",
             "height", "h",
             "initialWidth", "iw",
@@ -49,6 +47,8 @@ public abstract class BaseExpression<T extends BaseExpression> {
             "pageY", "py"
 
     );
+    private static final String PATTERN = getpattern();
+
     protected List<String> expressions = null;
     protected Transformation parent = null;
 
@@ -57,11 +57,11 @@ public abstract class BaseExpression<T extends BaseExpression> {
     }
 
     /**
-     * Parses an expression string, replace "nice names" with their coded values and spaces with "_".
+     * Normalize an expression string, replace "nice names" with their coded values and spaces with "_".
      * @param expresion an expression
      * @return a parsed expression
      */
-    public static String parse(Object expresion) {
+    public static String normalize(Object expresion) {
 
         String replacement;
         if (expresion == null) {
@@ -69,14 +69,14 @@ public abstract class BaseExpression<T extends BaseExpression> {
         }
         String conditionStr = String.valueOf(expresion);
         conditionStr = conditionStr.replaceAll("[ _]+", "_");
-        Pattern replaceRE = Pattern.compile("(" + StringUtils.join(PREDEFINED.keySet(), "|") + "|[=<>&|!*+-\\/]+)");
+        Pattern replaceRE = Pattern.compile(PATTERN);
         Matcher matcher = replaceRE.matcher(conditionStr);
         StringBuffer result = new StringBuffer(conditionStr.length());
         while (matcher.find()) {
             if (OPERATORS.containsKey(matcher.group())) {
                 replacement = (String) OPERATORS.get(matcher.group());
-            } else if (PREDEFINED.containsKey(matcher.group())) {
-                replacement = (String) PREDEFINED.get(matcher.group());
+            } else if (PREDEFINED_VARS.containsKey(matcher.group())) {
+                replacement = (String) PREDEFINED_VARS.get(matcher.group());
             } else {
                 replacement = matcher.group();
             }
@@ -84,6 +84,21 @@ public abstract class BaseExpression<T extends BaseExpression> {
         }
         matcher.appendTail(result);
         return result.toString();
+    }
+
+    /**
+     * @return a regex pattern for operators and predefined vars
+     */
+    private static String getpattern() {
+        String pattern;
+        final ArrayList<String> operators = new ArrayList<String>(OPERATORS.keySet());
+        Collections.sort(operators, Collections.<String>reverseOrder());
+        StringBuffer sb = new StringBuffer();
+        for(String op: operators) {
+            sb.append("|").append(Pattern.quote(op));
+        }
+        pattern = "(" + StringUtils.join(PREDEFINED_VARS.keySet(), "|") + sb.toString() + ")";
+        return pattern;
     }
 
     public Transformation getParent() {
@@ -104,6 +119,7 @@ public abstract class BaseExpression<T extends BaseExpression> {
         return serialize();
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public T clone() {
         T newCondition = newInstance();
@@ -210,12 +226,12 @@ public abstract class BaseExpression<T extends BaseExpression> {
         return (T) this;
     }
 
-    public T min(Object value) {
-        return (T) min().value(value);
+    public T sub(Object value) {
+        return (T) sub().value(value);
     }
 
-    public T min() {
-        expressions.add("min");
+    public T sub() {
+        expressions.add("sub");
         return (T) this;
     }
 
